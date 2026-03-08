@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Installs Nginx and configures the default page to display "Holberton School"
+
+# Update package list
+apt-get update -y
+
+# Install Nginx
+apt-get install -y nginx
+
+# Ensure Nginx starts (without using systemctl)
+service nginx start
+
+# Replace the default web page with our content
+echo "Holberton School for the win!" > /var/www/html/index.html
+
+# Reload Nginx to apply changes
+service nginx reload
