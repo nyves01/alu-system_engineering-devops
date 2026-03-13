@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Configures Nginx with a custom HTTP response header X-Served-By set to the server hostname
+
+# Update and install Nginx
+sudo apt-get update -y
+sudo apt-get install -y nginx
+
+# Get the hostname
+HOSTNAME=$(hostname)
+
+# Add custom header inside the http block via conf.d (cleaner approach)
+echo "add_header X-Served-By \"$HOSTNAME\";" | sudo tee /etc/nginx/conf.d/custom_header.conf > /dev/null
+
+# Remove UFW or make sure HTTP is allowed BEFORE enabling
+sudo ufw allow 'Nginx HTTP'
+sudo ufw allow 'OpenSSH'
+
+# Test nginx config first, then restart
+sudo nginx -t && sudo service nginx restart
