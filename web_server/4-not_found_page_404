@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Installs nginx and configures:
+# - default index page with "Holberton School for the win!"
+# - redirect from /redirect_me/ to YouTube with 301 status
+# - custom 404 page containing "Ceci n'est pas une page"
+
+set -e  # Exit on any error
+
+# Update and install nginx
+sudo apt-get update -y
+sudo apt-get install -y nginx
+
+# Create default index page
+echo "Holberton School for the win!" | sudo tee /var/www/html/index.nginx-debian.html > /dev/null
+
+# Create custom 404 page
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html > /dev/null
+
+# Overwrite default nginx site config with required settings
+sudo tee /etc/nginx/sites-available/default > /dev/null <<'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location /redirect_me/ {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+
+    error_page 404 /404.html;
+
+    location = /404.html {
+        internal;
+    }
+}
+EOF
+
+# Test nginx config syntax
+sudo nginx -t
+
+# Restart nginx to apply changes
+sudo service nginx restart
