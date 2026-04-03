@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Configures Nginx with a custom HTTP response header X-Served-By set to the server hostname
+# Configures nginx with a custom HTTP response header X-Served-By
 
-# Update and install Nginx
-sudo apt-get update -y
-sudo apt-get install -y nginx
+apt-get update -y
+apt-get install nginx -y
 
-# Get the hostname
-HOSTNAME=$(hostname)
+echo "Holberton School" > /var/www/html/index.nginx-debian.html
 
-# Add custom header inside the http block via conf.d (cleaner approach)
-echo "add_header X-Served-By \"$HOSTNAME\";" | sudo tee /etc/nginx/conf.d/custom_header.conf > /dev/null
+# Add custom header with the server's hostname
+sed -i '/server_name _;/a \\tadd_header X-Served-By $hostname;' /etc/nginx/sites-available/default
 
-# Remove UFW or make sure HTTP is allowed BEFORE enabling
-sudo ufw allow 'Nginx HTTP'
-sudo ufw allow 'OpenSSH'
+# Add 404 page
+echo "Ceci n'est pas une page" > /var/www/html/404.html
+sed -i '/server_name _;/a \\terror_page 404 /404.html;' /etc/nginx/sites-available/default
 
-# Test nginx config first, then restart
-sudo nginx -t && sudo service nginx restart
+# Add redirect
+sed -i '/server_name _;/a \\trewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
+
+service nginx restart
